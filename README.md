@@ -6,5 +6,6 @@ I'm here to solve the puzzles of advent of code 2024
 #
 ## -- Day 1: Historian Hysteria -- **solved**
 
+## -- Day 2: Red-Nosed Reports -- **solved**
 
  
