@@ -4,10 +4,10 @@ Hey there I'm Abinash with the advent code user name **Abinash1017**
 
 I'm here to solve the puzzles of advent of code 2024
 #
-## -- Day 1: Historian Hysteria -- **solved**
+## -- [Day 1: Historian Hysteria](https://adventofcode.com/2024/day/1) -- **solved**
 
-## -- Day 2: Red-Nosed Reports -- **solved**
+## -- [Day 2: Red-Nosed Reports](https://adventofcode.com/2024/day/2)-- **solved**
 
-## -- Day 3: Mull It Over -- **solved**
+## -- [Day 3: Mull It Over](https://adventofcode.com/2024/day/3) -- **solved**
 
 
