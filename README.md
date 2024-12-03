@@ -8,4 +8,6 @@ I'm here to solve the puzzles of advent of code 2024
 
 ## -- Day 2: Red-Nosed Reports -- **solved**
 
- 
+## -- Day 3: Mull It Over -- **solved**
+
+
