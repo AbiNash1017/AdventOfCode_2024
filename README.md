@@ -34,11 +34,15 @@ I'm here to solve the puzzles of advent of code 2024
 
 ## -- [Day 15: Warehouse Woes](https://adventofcode.com/2024/day/15) -- **solved**
 
-## -- [Day 16: Bridge Repair](https://adventofcode.com/2024/day/16) -- **solved**
+## -- [Day 16: Reindeer Maze](https://adventofcode.com/2024/day/16) -- **solved**
 
-## -- [Day 17: Bridge Repair](https://adventofcode.com/2024/day/17) -- **solved**
+## -- [Day 17: Chronospatial Computer](https://adventofcode.com/2024/day/17) -- **solved**
 
-## -- [Day 18: Bridge Repair](https://adventofcode.com/2024/day/18) -- **solved**
+## -- [Day 18: RAM Run](https://adventofcode.com/2024/day/18) -- **solved**
+
+## -- [Day 19: Linen Layout](https://adventofcode.com/2024/day/19) -- **solved**
+
+## -- [Day 20: Race Condition](https://adventofcode.com/2024/day/20) -- **solved**
 
 
 
