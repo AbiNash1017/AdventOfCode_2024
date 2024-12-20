@@ -10,4 +10,10 @@ I'm here to solve the puzzles of advent of code 2024
 
 ## -- [Day 3: Mull It Over](https://adventofcode.com/2024/day/3) -- **solved**
 
+## -- [Day 4: Ceres Search](https://adventofcode.com/2024/day/4) -- **solved**
+
+## -- [Day 5: Print Queue](https://adventofcode.com/2024/day/5) -- **solved**
+
+
+
 
