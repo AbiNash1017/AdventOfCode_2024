@@ -52,7 +52,9 @@ I'm here to solve the puzzles of advent of code 2024👨🏻‍💻
 
 ## -- [Day 24: Crossed Wires](https://adventofcode.com/2024/day/24) -- **solved**✅
 
+## -- [Day 25: Code Chronicle](https://adventofcode.com/2024/day/25) -- **solved**✅
 
 
+## with this the seasom of code comes to an end see you next year for the next challenge🏆
 
 

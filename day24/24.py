@@ -1,104 +1,140 @@
 import re
+import sys
+from dataclasses import dataclass
+from itertools import combinations
 
-init_wires = {}
-init_gates = set()
-with open('D:/Advent of code/day24/input.txt', 'r') as f:
-    pattern1 = r'(\w\w\w): (\d)'
-    pattern2 = r'(\w\w\w) (\D+) (\w\w\w) -> (\w\w\w)'
-    for line in f.readlines():
-        if re.match(pattern1, line.strip()):
-            wire, val = re.match(pattern1, line.strip()).groups()
-            init_wires[wire] = int(val)
-        elif re.match(pattern2, line.strip()):
-            wire1, op, wire2, wire3 = re.match(pattern2, line.strip()).groups()
-            init_gates.add((wire1, wire2, op, wire3))
-            for w in (wire1, wire2, wire3):
-                if w not in init_wires:
-                    init_wires[w] = None
 
-num_x_bits = sum(w[0] == 'x' for w in init_wires)
-num_y_bits = sum(w[0] == 'y' for w in init_wires)
-num_z_bits = sum(w[0] == 'z' for w in init_wires)
+@dataclass
+class Connection:
+    ins: list[str]
+    op: str
+    out: str
 
-def get_z(gates, xy=None):
-    wire_map = init_wires.copy()
-    if xy is not None:
-        x, y = xy
-        bin_x = bin(x)[2:].zfill(num_x_bits)
-        for i, bit in enumerate(reversed(bin_x)):
-            wire_map['x'+str(i).zfill(2)] = int(bit)
-        bin_y = bin(y)[2:].zfill(num_y_bits)
-        for i, bit in enumerate(reversed(bin_y)):
-            wire_map['y'+str(i).zfill(2)] = int(bit)
-    while any(w[0] == 'z' and wire_map[w] is None for w in wire_map):
-        to_remove = []
-        for gate in gates:
-            wire1, wire2, op, wire3 = gate
-            if wire_map[wire3] is not None:
-                to_remove.append(gate)
-                continue
-            if wire_map[wire1] is not None and wire_map[wire2] is not None:
-                if op == 'AND':
-                    wire_map[wire3] = wire_map[wire1] & wire_map[wire2]
-                elif op == 'OR':
-                    wire_map[wire3] = wire_map[wire1] | wire_map[wire2]
-                elif op == 'XOR':
-                    wire_map[wire3] = wire_map[wire1] ^ wire_map[wire2]
-                to_remove.append(gate)
-        if not to_remove:
-            return None
-        for gate in to_remove:
-            gates.remove(gate)
-    z_bits = []
-    for w in sorted(wire for wire in wire_map if wire[0] == 'z'):
-        z_bits.append(str(wire_map[w]))
-    z = ''.join(reversed(z_bits))
-    return z
+    def __str__(self) -> str:
+        return f"{self.out} = {self.ins[0]} {self.op} {self.ins[1]}"
+    
+    def __eq__(self, other) -> bool:
+        return self.ins == other.ins and self.op == other.op
 
-# part 1
-z = get_z(init_gates.copy())
-print(int('0b' + z, 2))
 
-# part 2
-def get_num_mistakes(gates):
-    result = 0
-    for p in range(45):
-        x = 2**p
-        z = get_z(gates.copy(), (x, 0))
-        if z is None:
-            result += 1
-        elif int('0b'+z, 2) != x:
-            result += 1
-    return result
+operations = {
+    "OR": lambda x1, x2: x1 | x2,
+    "AND": lambda x1, x2: x1 & x2,
+    "XOR": lambda x1, x2: x1 ^ x2,
+}
 
-print(get_num_mistakes(init_gates))
 
-def get_swapped_gates(pairs):
-    new_gates = init_gates.copy()
-    for w1, w2 in pairs:
-        for gate1 in new_gates:
-            if gate1[3] == w1:
-                break
-        for gate2 in new_gates:
-            if gate2[3] == w2:
-                break
-        new_gate_1 = (gate1[0], gate1[1], gate1[2], gate2[3])
-        new_gate_2 = (gate2[0], gate2[1], gate2[2], gate1[3])
-        new_gates.remove(gate1)
-        new_gates.remove(gate2)
-        new_gates.add(new_gate_1)
-        new_gates.add(new_gate_2)
-    return new_gates
+def run_wire(w: str):
+    if w in init:
+        return init[w]
+    conn = wire_map[w]
+    return operations[conn.op](run_wire(conn.ins[0]), run_wire(conn.ins[1]))
 
-# w1 = 'z16'
-# for w2 in init_wires:
-#     if w2 == w1:
-#         continue
-#     num_mistakes = get_num_mistakes(get_swapped_gates([(w1, w2)]))
-#     if num_mistakes < 4:
-#         print(w1, w2, num_mistakes)
 
-## The following were found via a mix of inspecting the logic
-## and using the above helper methods
-pairs = [('z08', 'vvr'), ('rnq', 'bkr'), ('z28', 'tfb'), ('z39', 'mqh')]
-print(','.join(sorted(['z08', 'vvr', 'rnq', 'bkr', 'z28', 'tfb', 'z39', 'mqh']))) 
+file_path = 'D:/Advent of code/day24/input.txt'
+with open(file_path, 'r') as f:
+    data = f.read()
+init_pairs = re.findall(r"(.{3}): ([01])", data)
+init = {k: int(v) for k, v in init_pairs}
+map_str = data.split("\n\n")[1].splitlines()
+
+wire_map = {}
+for line in map_str:
+    in1, op, in2, _, out = line.strip().split(' ')
+    wire_map[out] = Connection([in1, in2], op, out)
+
+
+def solve():    
+    result = [run_wire(w) for w in sorted([w for w in wire_map if w.startswith("z")], reverse=True)]
+    return int(''.join(map(str, result)), 2)
+
+
+part1 = solve()
+print(f'Part 1: {part1}')
+
+
+def run_wire2(w: str, init: dict[list[int]]):
+    if res:=re.match(r'(x|y)(\d{2})', w):
+        var, num = res.groups()
+        return init[var][int(num)]
+    conn = wire_map[w]
+    return operations[conn.op](run_wire2(conn.ins[0], init), run_wire2(conn.ins[1], init))
+
+
+# def get_wires(w: str) -> set[str]:
+#     res = set([w])
+#     conn = wire_map[w]
+#     if conn.ins[0] in wire_map:
+#         res |= get_wires(conn.ins[0])
+#     if conn.ins[1] in wire_map:
+#         res |= get_wires(conn.ins[1])
+#     return res
+
+
+def make_wire(var, num):
+    return var + str(num).zfill(2)
+
+
+def validate(n: int) -> bool:
+    for x in range(2):
+        for y in range(2):
+            for c in range(2):
+                init_x = [0] * (44 - n) + [x]
+                init_y = [0] * (44 - n) + [y]
+                if n > 0:
+                    init_x += [c] + [0] * (n - 1)
+                    init_y += [c] + [0] * (n - 1)
+                elif c > 0:
+                    continue
+                init_x, init_y = list(reversed(init_x)), list(reversed(init_y))
+                z = run_wire2(make_wire("z", n), {"x": init_x, "y": init_y})
+                if z != (x + y + c) % 2:
+                    return False
+    return True
+
+
+def find_wire(op=None, in1=None, in2=None):
+    for wire in wire_map.values():
+        if op and op != wire.op: continue
+        if in1 and in1 not in wire.ins: continue
+        if in2 and in2 not in wire.ins: continue
+        return wire
+    
+
+def swap(w1: str, w2: str) -> None:
+    wire_map[w1], wire_map[w2] = wire_map[w2], wire_map[w1]
+
+
+def fix_bit_n(n: int) -> list[str]:
+    """
+    zn = nxor XOR m1
+    nxor = xn XOR yn
+    m1 = m2 OR prevand
+    prevand = xn-1 AND yn-1
+    m2 = prevxor AND (something else from prev)
+    prevxor = xn-1 XOR yn-1
+
+    know m2 is good or would have crashed on prev validation
+    """
+    print(f"Issue with n = {n}")
+    prevand = find_wire(op="AND", in1=make_wire("x", n - 1), in2=make_wire("y", n - 1))
+    prevxor = find_wire(op="XOR", in1=make_wire("x", n - 1), in2=make_wire("y", n - 1))
+    m2 = find_wire(op="AND", in1=prevxor.out)
+    m1 = find_wire(op="OR", in1=m2.out, in2=prevand.out)
+    nxor = find_wire("XOR", in1=make_wire("x", n), in2=make_wire("y", n))
+    zn = find_wire(op="XOR", in1=nxor.out, in2=m1.out)
+    if zn is None:
+        zn = wire_map[make_wire("z", n)]
+        to_swap = list(set(zn.ins) ^ set([nxor.out, m1.out]))
+    if zn.out != make_wire("z", n):
+        to_swap = [make_wire("z", n), zn.out]
+    swap(*to_swap)
+    return to_swap
+
+part2 = []
+for i in range(45):
+    if validate(i): 
+        continue
+    part2.extend(fix_bit_n(i))
+
+print(f'Part 2: {",".join(sorted(part2))}')
